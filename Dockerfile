@@ -1,0 +1,14 @@
+# Start with JupyterHub base
+ARG JUPYTERHUB_VERSION=4.0.1
+FROM jupyterhub/jupyterhub:$JUPYTERHUB_VERSION
+
+# Install custom spawner
+COPY filespawner /tmp/filespawner
+RUN cd /tmp/filespawner && python3 -m pip install .
+
+# Install custom authenticator
+COPY jwtauth /tmp/jwtauth
+RUN cd /tmp/jwtauth && python3 -m pip install .
+
+# Include jupyter hub config
+COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
