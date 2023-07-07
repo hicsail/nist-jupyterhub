@@ -27,7 +27,7 @@ docker run --rm -it \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v jupyterhub:/srv/jupyterhub \
   --net jupyterhub \
-  --name jupterhub \
+  --name jupyterhub \
   -p8000:8000\
   hub
 ```

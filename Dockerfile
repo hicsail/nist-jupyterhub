@@ -11,4 +11,6 @@ COPY jwtauth /tmp/jwtauth
 RUN cd /tmp/jwtauth && python3 -m pip install .
 
 # Include jupyter hub config
-COPY jupyterhub_config.py /srv/jupyterhub/jupyterhub_config.py
+COPY jupyterhub_config.py /srv/jupyterhub_config.py
+
+CMD ["jupyterhub", "-f", "/srv/jupyterhub_config.py"]
