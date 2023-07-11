@@ -1,26 +1,11 @@
-from docker.utils.build import tempfile
 from dockerspawner import DockerSpawner
 from dockerspawner.dockerspawner import asyncio
 from tornado import web
-import os
 import tarfile
 import aiohttp
 import aiofiles
 from io import BytesIO
 import time
-
-
-async def copy_to(docker, src, container_id):
-    srcname = os.path.basename(src)
-    tar = tarfile.open(src + '.tar', mode='w')
-    try:
-        tar.add(srcname)
-    finally:
-        tar.close()
-
-    data = open(src + '.tar', 'rb').read()
-    await docker('put_archive', container=container_id, path='/home/jovyan', data=data)
-
 
 
 class FileSpawner(DockerSpawner):
@@ -49,6 +34,7 @@ class FileSpawner(DockerSpawner):
         loop = asyncio.get_event_loop()
         tar_data = await loop.run_in_executor(None, build_tar_blocking)
 
+        # Copy the tar to the container
         await self.docker('put_archive', container=self.container_id, path='/home/jovyan', data=tar_data)
 
     async def add_file(self, file_url: str):
@@ -58,13 +44,12 @@ class FileSpawner(DockerSpawner):
         # Download the file into a temporary files
         async with aiohttp.ClientSession() as session:
             async with session.get(file_url) as response:
-                async with aiofiles.tempfile.NamedTemporaryFile('wb', dir='.') as file:
-                    # Download the file
-                    file_data = await response.content.read()
+                # Download the file
+                file_data = await response.content.read()
 
-                    # Send the file into the container
-                    # Ignore type checking, leveraging named python file
-                    await self.send_to_container(file_data)  # type: ignore
+        # Send the file into the container
+        # Ignore type checking, leveraging named python file
+        await self.send_to_container(file_data)  # type: ignore
 
     async def start(self):
         # Get the URL of the file to download
@@ -72,15 +57,10 @@ class FileSpawner(DockerSpawner):
         if file_url is None:
             raise web.HTTPError(400, 'Missing fileURL')
 
-        """
-        # Download and save the file
-        request = requests.get(file_url)
-        open('file.ipynb', 'wb').write(request.content)
-        """
-
         # Start the docker notebook
         result = await super().start()
 
+        # Copy the file to the container
         await self.add_file(file_url)
 
         return result
