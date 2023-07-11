@@ -19,6 +19,9 @@ class FileSpawner(DockerSpawner):
     async def send_to_container(self, file_data: bytes, file_name: str):
         """
         Send the file to the container
+
+        :param file_data: The raw file data to be passed to the container
+        :param file_name: The human readable name of the file
         """
         def build_tar_blocking():
             """
@@ -48,6 +51,9 @@ class FileSpawner(DockerSpawner):
     async def add_file(self, file_url: str, file_name: str):
         """
         Download the file and add the file to the running container
+
+        :param file_url: URL of the file which can be downloaded
+        :param file_name: The human readable name of the file
         """
         # Download the file into a temporary files
         async with aiohttp.ClientSession() as session:
@@ -60,6 +66,13 @@ class FileSpawner(DockerSpawner):
         await self.send_to_container(file_data, file_name)  # type: ignore
 
     async def start(self):
+        """
+        Completes the following operations
+
+            1. Determines the file URL and name from the user options
+            2. Starts the user's container
+            3. Passes the file to the created container
+        """
         # Get the URL and name of the file to download
         file_url = self.user_options.get('fileURL', None)
         if file_url is None:
