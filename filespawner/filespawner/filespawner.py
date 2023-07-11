@@ -9,7 +9,7 @@ import time
 
 
 class FileSpawner(DockerSpawner):
-    async def send_to_container(self, file_data: bytes):
+    async def send_to_container(self, file_data: bytes, file_name: str):
         """
         Send the file to the container
         """
@@ -21,7 +21,7 @@ class FileSpawner(DockerSpawner):
 
             # Make the tarball
             with tarfile.open(fileobj=data_stream, mode='w') as tar:
-                tarinfo = tarfile.TarInfo(name='test.ipynb')
+                tarinfo = tarfile.TarInfo(name=file_name)
                 tarinfo.size = len(file_data)
                 tarinfo.mtime = int(time.time())
                 tar.addfile(tarinfo, BytesIO(file_data))
@@ -37,7 +37,7 @@ class FileSpawner(DockerSpawner):
         # Copy the tar to the container
         await self.docker('put_archive', container=self.container_id, path='/home/jovyan', data=tar_data)
 
-    async def add_file(self, file_url: str):
+    async def add_file(self, file_url: str, file_name: str):
         """
         Download the file and add the file to the running container
         """
@@ -49,18 +49,21 @@ class FileSpawner(DockerSpawner):
 
         # Send the file into the container
         # Ignore type checking, leveraging named python file
-        await self.send_to_container(file_data)  # type: ignore
+        await self.send_to_container(file_data, file_name)  # type: ignore
 
     async def start(self):
-        # Get the URL of the file to download
+        # Get the URL and name of the file to download
         file_url = self.user_options.get('fileURL', None)
         if file_url is None:
             raise web.HTTPError(400, 'Missing fileURL')
+        file_name = self.user_options.get('fileName', None)
+        if file_name is None:
+            raise web.HTTPError(400, 'Unknown file name')
 
         # Start the docker notebook
         result = await super().start()
 
         # Copy the file to the container
-        await self.add_file(file_url)
+        await self.add_file(file_url, file_name)
 
         return result
