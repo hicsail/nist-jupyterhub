@@ -9,6 +9,13 @@ import time
 
 
 class FileSpawner(DockerSpawner):
+    async def get_working_director(self) -> str:
+        """
+        Get the working directory of the running container
+        """
+        resp = await self.docker('inspect_container', self.container_id)
+        return resp['Config']['WorkingDir']
+
     async def send_to_container(self, file_data: bytes, file_name: str):
         """
         Send the file to the container
@@ -35,7 +42,8 @@ class FileSpawner(DockerSpawner):
         tar_data = await loop.run_in_executor(None, build_tar_blocking)
 
         # Copy the tar to the container
-        await self.docker('put_archive', container=self.container_id, path='/home/jovyan', data=tar_data)
+        target_dir = await self.get_working_director()
+        await self.docker('put_archive', container=self.container_id, path=target_dir, data=tar_data)
 
     async def add_file(self, file_url: str, file_name: str):
         """
