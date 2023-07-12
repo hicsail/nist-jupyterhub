@@ -14,8 +14,7 @@ c.JupyterHub.authenticator_class = 'dummy'
 
 ## Spawner Settings
 # Use custom spawner
-# c.JupyterHub.spawner_class = 'filespawner.FileSpawner'
-c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
+c.JupyterHub.spawner_class = 'filespawner.FileSpawner'
 
 # Default image for user server containers
 c.DockerSpawner.image = 'jupyter/datascience-notebook'
