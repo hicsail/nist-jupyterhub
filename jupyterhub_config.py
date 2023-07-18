@@ -8,9 +8,8 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 c.JupyterHub.hub_connect_ip = 'jupyterhub'
 
 ## Authenticator Setting
-# Use custom authenticator
-# c.JupyterHub.authenticator_class = 'jwtauth.JwtAuth'
-c.JupyterHub.authenticator_class = 'dummy'
+# Use null authenticator so login is only possible through API
+c.JupyterHub.authenticator_class = 'null'
 
 ## Spawner Settings
 # Use custom spawner
