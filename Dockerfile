@@ -6,10 +6,6 @@ FROM jupyterhub/jupyterhub:$JUPYTERHUB_VERSION
 COPY filespawner /tmp/filespawner
 RUN cd /tmp/filespawner && python3 -m pip install .
 
-# Install custom authenticator
-COPY jwtauth /tmp/jwtauth
-RUN cd /tmp/jwtauth && python3 -m pip install .
-
 # Include jupyter hub config
 COPY jupyterhub_config.py /srv/jupyterhub_config.py
 
