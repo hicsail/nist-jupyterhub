@@ -1,3 +1,14 @@
+from dotenv import load_dotenv
+import os
+import pathlib
+
+# Load environment variables, assume the .env file is in the same directory
+# as this config file
+config_dir = pathlib.Path(__file__).parent.resolve()
+env_file_path = config_dir / '.env'
+print(env_file_path)
+load_dotenv(dotenv_path=env_file_path)
+
 c = get_config()
 
 ## Network Settings
@@ -25,7 +36,7 @@ c.DockerSpawner.remove = True
 ## API Settings
 # Create the NIST service
 c.JupyterHub.services = [
-    { 'name': 'service-NIST', 'api_token': '327b5d481483f480c2978cc49922a00506b2bf7ae707bb1e8703ad082f0fc0ca' }
+    { 'name': 'service-NIST', 'api_token': os.getenv('SERVICE_API_TOKEN') }
 ]
 
 # Grant NIST service account admin privledges
