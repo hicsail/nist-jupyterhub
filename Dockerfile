@@ -1,5 +1,5 @@
 # Start with JupyterHub base
-ARG JUPYTERHUB_VERSION=4.0.1
+ARG JUPYTERHUB_VERSION=2.3.1
 FROM jupyterhub/jupyterhub:$JUPYTERHUB_VERSION
 
 # Install custom spawner

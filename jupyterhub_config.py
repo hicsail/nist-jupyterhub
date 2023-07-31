@@ -15,8 +15,6 @@ c.JupyterHub.authenticator_class = 'null'
 # Use custom spawner
 c.JupyterHub.spawner_class = 'filespawner.FileSpawner'
 
-# Default image for user server containers
-c.DockerSpawner.image = 'jupyter/base-notebook'
 
 # Network used to communicate with user containers
 c.DockerSpawner.network_name = 'jupyterhub'
