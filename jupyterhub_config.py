@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 import pathlib
+import sys
 
 # Load environment variables, assume the .env file is in the same directory
 # as this config file
@@ -34,13 +35,22 @@ c.DockerSpawner.network_name = 'jupyterhub'
 c.DockerSpawner.remove = True
 
 ## API Settings
-# Create the NIST service
 c.JupyterHub.services = [
-    { 'name': 'service-NIST', 'api_token': os.getenv('SERVICE_API_TOKEN') }
+    # NIST service
+    { 'name': 'service-NIST', 'api_token': os.getenv('SERVICE_API_TOKEN') },
+    # Cull service
+    {
+        "name": "jupyterhub-idle-culler-service",
+        "command": [
+            sys.executable,
+            "-m", "jupyterhub_idle_culler",
+            "--timeout=3600",
+        ],
+    }
 ]
 
-# Grant NIST service account admin privledges
 c.JupyterHub.load_roles = [
+    # NIST service roles
     {
         'name': 'service-role',
         'scopes': [
@@ -57,5 +67,18 @@ c.JupyterHub.load_roles = [
             # assign the service the above permissions
             'service-NIST'
         ],
+    },
+    # Cull service roles
+    {
+        'name': 'jupyterhub-idle-culler-role',
+        'scopes': [
+            'list:users',
+            'read:users:activity',
+            'read:servers',
+            'delete:servers',
+            # 'admin:users', # if using --cull-users
+        ],
+        # assignment of role's permissions to:
+        'services': ['jupyterhub-idle-culler-service'],
     }
 ]
